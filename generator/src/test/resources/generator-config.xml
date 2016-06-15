@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+    <context id="mysqlTables">
+
+        <plugin type="cn.chenlichao.web.ssm.generator.mybatis.MapperGeneratorPlugin">
+            <property name="mappers" value="cn.chenlichao.web.ssm.dao.mapper.BaseMapper" />
+            <property name="caseSensitive" value="true" />
+            <property name="parentDomain" value="cn.chenlichao.web.ssm.dao.entity.IntegerEntity" />
+            <property name="idType" value="Integer" />
+        </plugin>
+
+        <plugin type="cn.chenlichao.web.ssm.generator.mybatis.ServiceGeneratorPlugin">
+            <property name="targetPackage" value="generator.test.service" />
+            <property name="targetProject" value="/Users/chenlichao/work/projects/OpenSource/ssm/generator/src/test/java" />
+            <property name="enableSubPackages" value="true" />
+        </plugin>
+
+        <plugin type="cn.chenlichao.web.ssm.generator.mybatis.ControllerGeneratorPlugin">
+            <property name="targetPackage" value="generator.test.controller" />
+            <property name="targetProject" value="/Users/chenlichao/work/projects/OpenSource/ssm/generator/src/test/java" />
+            <property name="enableSubPackages" value="true" />
+        </plugin>
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://192.168.4.151/news_content_admin"
+                        userId="news_content" password="news_content"/>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false" />
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="generator.test.dao.entity"
+                            targetProject="/Users/chenlichao/work/projects/OpenSource/ssm/generator/src/test/java">
+            <property name="enableSubPackages" value="true" />
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="generator.test.dao.mapper"
+                         targetProject="/Users/chenlichao/work/projects/OpenSource/ssm/generator/src/test/java">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="generator.test.dao.mapper"
+                             targetProject="/Users/chenlichao/work/projects/OpenSource/ssm/generator/src/test/java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+
+        <table tableName="tb_news_sources" domainObjectName="UrlSource">
+            <generatedKey column="id" sqlStatement="Mysql" identity="true" />
+            <columnOverride column="is_crawled" javaType="java.lang.Boolean" />
+            <columnOverride column="is_valid" javaType="java.lang.Boolean" />
+        </table>
+    </context>
+</generatorConfiguration>

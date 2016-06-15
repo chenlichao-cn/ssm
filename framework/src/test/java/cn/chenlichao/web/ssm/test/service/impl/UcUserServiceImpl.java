@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.chenlichao.web.ssm.test.service;
+package cn.chenlichao.web.ssm.test.service.impl;
 
 import cn.chenlichao.web.ssm.service.impl.BaseServiceImpl;
 import cn.chenlichao.web.ssm.test.domain.UcUser;
+import cn.chenlichao.web.ssm.test.service.UcUserService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
