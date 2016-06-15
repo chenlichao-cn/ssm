@@ -1,0 +1,48 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+       default-lazy-init="true">
+    <context:annotation-config />
+    <context:component-scan base-package="cn.chenlichao.web.ssm.test" />
+
+    <tx:annotation-driven/>
+
+    <!--<tx:jta-transaction-manager/>-->
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+    <!--<property name="basePackage" value="cn.com.autohome.pinche.dao"/>-->
+    <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>-->
+    <!--</bean>-->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis/config.xml"/>
+        <property name="mapperLocations" value="classpath*:cn/chenlichao/web/ssm/test/**/*.xml"/>
+
+        <!-- 转移到mybatis config <property name="typeAliasesPackage" value="com.athm.atmt.domain;com.athm.atmt.car.domain" /> -->
+    </bean>
+    <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.chenlichao.web.framework.ssm.test"/>
+        <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />-->
+        <property name="properties">
+            <value>
+                mappers=cn.chenlichao.web.cn.chenlichao.web.ssm.dao.mapper.BaseMapper
+            </value>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!-- 基本属性 url、user、password -->
+        <property name="driverClassName" value="org.h2.Driver" />
+        <property name="url" value="jdbc:h2:mem:db"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+        <property name="testWhileIdle" value="false" />
+    </bean>
+</beans>
