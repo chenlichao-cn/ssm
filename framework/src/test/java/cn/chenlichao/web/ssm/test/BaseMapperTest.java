@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -13,6 +14,8 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -63,9 +66,12 @@ public class BaseMapperTest {
         UcUser user = generatorUser();
         user.setPassword(null);
         mapper.insertWithNull(user);
-        jdbcTemplate.query("select password from uc_user where id=" + user.getId(), row -> {
-            String passwd = row.getString(1);
-            assertNull("NULL值覆盖数据库失败", passwd);
+        jdbcTemplate.query("select password from uc_user where id=" + user.getId(), new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet resultSet) throws SQLException {
+                String passwd = resultSet.getString(1);
+                assertNull("NULL值覆盖数据库失败", passwd);
+            }
         });
         user.setId(null);
         user.setUsername(null);
@@ -132,8 +138,11 @@ public class BaseMapperTest {
         user.setId(10);
         result = mapper.update(user);
         assertEquals(1, result);
-        jdbcTemplate.query("select * from uc_user where id=10", row -> {
-            assertEquals("123456", row.getString("username"));
+        jdbcTemplate.query("select * from uc_user where id=10", new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet resultSet) throws SQLException {
+                assertEquals("123456", resultSet.getString("username"));
+            }
         });
     }
 
@@ -148,9 +157,12 @@ public class BaseMapperTest {
         user.setId(10);
         result = mapper.updateWithNull(user);
         assertEquals(1, result);
-        jdbcTemplate.query("select * from uc_user where id=10", row -> {
-            assertEquals("123456", row.getString("username"));
-            assertNull(row.getString("password"));
+        jdbcTemplate.query("select * from uc_user where id=10", new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet resultSet) throws SQLException {
+                assertEquals("123456", resultSet.getString("username"));
+                assertNull(resultSet.getString("password"));
+            }
         });
     }
 
@@ -321,6 +333,7 @@ public class BaseMapperTest {
         assertEquals("0记录", 0, results.size());
     }
 
+    @SuppressWarnings("Duplicates")
     private UcUser generatorUser() {
         UcUser user = new UcUser();
         user.setBirthday(new Date());

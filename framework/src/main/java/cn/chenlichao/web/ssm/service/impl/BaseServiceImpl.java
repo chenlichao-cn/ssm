@@ -51,7 +51,7 @@ import java.util.List;
 public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Serializable> implements BaseService<E, PK> {
 
     /** 日志 */
-    protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     protected BaseMapper<E, PK> baseMapper;
 
@@ -64,22 +64,23 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         Type genType = getClass().getGenericSuperclass();
 
         // 逐级向上查找, 直到找到对应的泛型类型, 用于处理多级继承
-        while(!(genType.getTypeName().equals("java.lang.Object"))) {
-            //logger.info(genType.getTypeName());
+        while(!genType.equals(Object.class)) {
             if (genType instanceof ParameterizedType) {
-                Type[] params = ((ParameterizedType)genType).getActualTypeArguments();
-                if (params.length == 2) {
-                    if (params[0] instanceof Class) {
-                        entityClass = (Class<E>) params[0];
-                    }
-                    pkClass = (Class<PK>)params[1];
+                ParameterizedType superType = (ParameterizedType) genType;
+                Type[] params = superType.getActualTypeArguments();
+                if (params.length == 2 && params[0] instanceof Class) {
+                    entityClass = (Class<E>) params[0];
+                    pkClass = (Class<PK>) params[1];
                     break;
                 }
+            }
+            if (genType instanceof Class) {
+                genType = ((Class) genType).getGenericSuperclass();
             } else {
-                genType = ((Class)genType).getGenericSuperclass();
+                break;
             }
         }
-        logger.debug("Entity Class: {}, PK class: {}", entityClass.getSimpleName(), pkClass.getSimpleName());
+        LOGGER.debug("Entity Class: {}, PK class: {}", entityClass.getSimpleName(), pkClass.getSimpleName());
     }
 
     @Autowired
@@ -96,7 +97,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (result != 1) {
             throw new PersistenceException("数据插入失败");
         }
-        logger.trace("数据库插入成功, 新ID: [{}]", entity.getId());
+        LOGGER.trace("数据库插入成功, 新ID: [{}]", entity.getId());
         return entity.getId();
     }
 
@@ -105,16 +106,16 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (entities == null) {
             throw new IllegalArgumentException("数据实体集合为null");
         }
-        Long result = entities.parallelStream().map(entity -> {
+        int successed = 0;
+        for (E entity : entities) {
             try {
                 save(entity);
-                return 1;
+                successed++;
             } catch (Exception e) {
-                logger.error("批量插入数据库时失败: [{}]", entity);
-                return 0;
+                LOGGER.error("批量插入数据失败: [{}]", entity);
             }
-        }).filter(i -> i > 0).count();
-        return result.intValue();
+        }
+        return successed;
     }
 
     @Override
@@ -126,7 +127,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (result != 1) {
             throw new PersistenceException("数据插入失败");
         }
-        logger.trace("数据库插入成功, 新ID: [{}]", entity.getId());
+        LOGGER.trace("数据库插入成功, 新ID: [{}]", entity.getId());
         return entity.getId();
     }
 
@@ -135,16 +136,16 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (entities == null) {
             throw new IllegalArgumentException("数据实体集合为null");
         }
-        Long result = entities.parallelStream().map(entity -> {
+        int successed = 0;
+        for (E entity : entities) {
             try {
                 saveWithNull(entity);
-                return 1;
+                successed++;
             } catch (Exception e) {
-                logger.error("批量插入数据库时失败: [{}]", entity);
-                return 0;
+                LOGGER.error("批量插入数据失败: [{}]", entity);
             }
-        }).filter(i -> i > 0).count();
-        return result.intValue();
+        }
+        return successed;
     }
 
     @Override
@@ -210,16 +211,16 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (ids == null) {
             throw new IllegalArgumentException("ID集合为null");
         }
-        Long result = ids.parallelStream().map(id -> {
+        int successed = 0;
+        for (PK id : ids) {
             try {
                 delete(id);
-                return 1;
+                successed++;
             } catch (Exception e) {
-                logger.error("批量删除数据失败: [{}]", id);
-                return 0;
+                LOGGER.error("批量删除数据失败: [{}]", id);
             }
-        }).filter(i -> i>0).count();
-        return result.intValue();
+        }
+        return successed;
     }
 
     @Override
@@ -297,13 +298,13 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         if (pageParams == null) {
             throw new IllegalArgumentException("分页参数为null");
         }
-        logger.trace("执行分页查询...");
+        LOGGER.trace("执行分页查询...");
 
         // 初始化参数
         int pageNum = pageParams.getPageIndex();
         int pageSize = pageParams.getPageSize();
         if (pageSize > 100) {
-            logger.warn("分页查询, 页大小为[{}] 条, 重置为 100 条。", pageSize);
+            LOGGER.warn("分页查询, 页大小为[{}] 条, 重置为 100 条。", pageSize);
             pageSize = 100;
         }
 
@@ -333,7 +334,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
                             criteria.andEqualTo(pd.getName(), value);
                         }
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        logger.error("构建分页查询example时出错: {}", e.getMessage(), e);
+                        LOGGER.error("构建分页查询example时出错: {}", e.getMessage(), e);
                         throw new DAOException(e);
                     }
                 }
@@ -347,7 +348,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         }
         // 返回空结果集
         if (results == null || !(results instanceof Page)) {
-            return new PageResults<>(0, new ArrayList<>(0), pageParams);
+            return new PageResults<>(0, new ArrayList<E>(0), pageParams);
         }
         Page page = (Page)results;
         Long totalCount = page.getTotal();
@@ -366,12 +367,12 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
             throw new IllegalArgumentException("查询条件实体类与服务实体类型不匹配");
         }
 
-        logger.trace("开始进行example条件分页查询...");
+        LOGGER.trace("开始进行example条件分页查询...");
         // 处理参数
         int pageNum = pageParams.getPageIndex();
         int pageSize = pageParams.getPageSize();
         if (pageSize > 100) {
-            logger.warn("分页查询, 页大小为[{}] 条, 重置为 100 条。", pageSize);
+            LOGGER.warn("分页查询, 页大小为[{}] 条, 重置为 100 条。", pageSize);
             pageSize = 100;
         }
 
@@ -380,7 +381,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         List<E> results = baseMapper.selectByExample(example);
         // 返回空结果集
         if (results == null || !(results instanceof Page)) {
-            return new PageResults<>(0, new ArrayList<>(0), pageParams);
+            return new PageResults<>(0, new ArrayList<E>(0), pageParams);
         }
         Page page = (Page)results;
         Long totalCount = page.getTotal();

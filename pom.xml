@@ -23,7 +23,7 @@
         <javadoc.skip>true</javadoc.skip>
         <gpg.skip>true</gpg.skip>
 
-        <sourceTarget>1.8</sourceTarget>
+        <sourceTarget>1.7</sourceTarget>
 
         <spring.framework.version>4.3.0.RELEASE</spring.framework.version>
         <mybatis.version>3.4.0</mybatis.version>
