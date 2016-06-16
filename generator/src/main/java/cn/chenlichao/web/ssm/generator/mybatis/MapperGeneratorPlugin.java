@@ -175,17 +175,6 @@ public class MapperGeneratorPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        String jdbcType = introspectedColumn.getJdbcTypeName();
-        // TINYINT和SMALLINT时, javaType设定为Integer
-        if ("TINYINT".equals(jdbcType) || "SMALLINT".equals(jdbcType)) {
-            //忽略javaType指定为Boolean的情况
-            if (!introspectedColumn.getFullyQualifiedJavaType()
-                    .equals(new FullyQualifiedJavaType("java.lang.Boolean"))) {
-                FullyQualifiedJavaType javaType = new FullyQualifiedJavaType("java.lang.Integer");
-                introspectedColumn.setFullyQualifiedJavaType(javaType);
-                field.setType(javaType);
-            }
-        }
         return !"id".equals(field.getName());
     }
 

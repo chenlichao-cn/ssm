@@ -29,8 +29,10 @@
                         connectionURL="jdbc:mysql://192.168.4.151/news_content_admin"
                         userId="news_content" password="news_content"/>
 
-        <javaTypeResolver>
+        <javaTypeResolver type="cn.chenlichao.web.ssm.generator.mybatis.SSMJavaTypeResolver">
             <property name="forceBigDecimals" value="false" />
+            <property name="TINYINT" value="java.lang.Integer" />
+            <property name="SMALLINT" value="java.lang.Integer" />
         </javaTypeResolver>
 
         <javaModelGenerator targetPackage="generator.test.dao.entity"
