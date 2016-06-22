@@ -25,18 +25,31 @@ import cn.chenlichao.web.ssm.dao.entity.BaseEntity;
  * <br>version: V1.0.0
  * <br>Copyright：Copyright © 2016 Chen Lichao. All rights reserved.
  */
-public class PageParams<E extends BaseEntity> {
+public class PageParams<E> {
+
+    /** 页码 key */
+    public static final String PAGE_INDEX_KEY = "pageIndex";
+    /** 页大小 key */
+    public static final String PAGE_SIZE_KEY = "pageSize";
+    /** 排序字段 */
+    public static final String ORDER_BY_KEY = "orderBy";
+    /** 是否升序 */
+    public static final String IS_ASC_KEY = "isAsc";
+    /** 默认页码 */
+    public static final int DEFAULT_PAGE_INDEX = 1;
+    /** 默认页大小 */
+    public static final int DEFAULT_PAGE_SIZE = 30;
 
     /** 查询参数 */
     private E paramEntity;
     /** 当前页码, 默认为第 1 页 */
-    private int pageIndex = 1;
+    private int pageIndex = DEFAULT_PAGE_INDEX;
     /** 页大小, 默认为每页 30 条 */
-    private int pageSize = 30;
+    private int pageSize = DEFAULT_PAGE_SIZE;
     /** 排序字段 */
-    private String orderBy;
+    private String orderBy = "id";
     /** 是否升序排序, 默认为降序排序 */
-    private boolean asc;
+    private boolean asc = false;
 
     /**
      * 获取查询条件实体

@@ -31,13 +31,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.persistence.Column;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -342,7 +346,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
             // 处理排序
             String orderBy = pageParams.getOrderBy();
             if (StringUtils.hasText(orderBy)) {
-                example.setOrderByClause(orderBy + (pageParams.isAsc() ? " ASC" : " DESC"));
+                processOrder(example, orderBy, pageParams.isAsc());
             }
             results = baseMapper.selectByExample(example);
         }
@@ -352,7 +356,7 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         }
         Page page = (Page)results;
         Long totalCount = page.getTotal();
-        return new PageResults<>(totalCount.intValue(), results, pageParams);
+        return new PageResults<>(totalCount.intValue(), Collections.unmodifiableList(results), pageParams);
     }
 
     @Override
@@ -386,5 +390,22 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
         Page page = (Page)results;
         Long totalCount = page.getTotal();
         return new PageResults<>(totalCount.intValue(), results, pageParams);
+    }
+
+    private void processOrder(Example example, String orderBy, boolean isAsc) {
+        Class<?> clazz = example.getEntityClass();
+        try {
+            Field field = clazz.getDeclaredField(orderBy);
+            if (field != null) {
+                Column column = field.getAnnotation(Column.class);
+                if (column != null) {
+                    example.setOrderByClause(column.name() + (isAsc ? " ASC" : " DESC"));
+                    return;
+                }
+            }
+        } catch (NoSuchFieldException e) {
+            // do nothing
+        }
+        example.setOrderByClause(orderBy + (isAsc ? " ASC" : " DESC"));
     }
 }

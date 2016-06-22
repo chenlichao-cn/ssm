@@ -28,7 +28,7 @@ import java.util.List;
  * <br>version: V1.0.0
  * <br>Copyright：Copyright © 2016 Chen Lichao. All rights reserved.
  */
-public class PageResults<E extends BaseEntity> {
+public class PageResults<E> {
 
     /** 当前页数据结果集 */
     private final List<E> results;
@@ -87,6 +87,79 @@ public class PageResults<E extends BaseEntity> {
      */
     public int getPageCount() {
         return (totalCount + pageParams.getPageSize() - 1) / pageParams.getPageSize();
+    }
+
+    /**
+     * 获取当前页码
+     *
+     * @return 当前页码
+     */
+    public int getPageIndex() {
+        return pageParams.getPageIndex();
+    }
+
+    /**
+     * 获取当前页大小
+     *
+     * @return 当前页大小
+     */
+    public int getPageSize() {
+        return pageParams.getPageSize();
+    }
+
+    /**
+     * 获取显示内容的起始index
+     *
+     * @return 当前页的起始Index
+     */
+    public int getStartIndex() {
+        int pi = pageParams.getPageIndex();
+        int ps = pageParams.getPageSize();
+        return (pi - 1) * ps + 1;
+    }
+
+    /**
+     * 获取当前页的结尾Index
+     *
+     * @return 当前页的结尾Index
+     */
+    public int getEndIndex() {
+        return getStartIndex() + results.size() - 1;
+    }
+
+
+    private static final int[] pl_1 = new int[] {1,2,3,4,5,6,7,8,9};
+
+    /**
+     * 返回显示的分页按钮列表
+     *
+     * @return 显示的分页按钮列表
+     */
+    public int[] getPageList() {
+        int pageCount = getPageCount();
+        if (pageCount < 10) {
+            int[] result = new int[pageCount];
+            for (int i=0; i<pageCount; i++) {
+                result[i] = i + 1;
+            }
+            return result;
+        }
+        int pageIndex = getPageIndex();
+        if (pageIndex < 6) {
+            return pl_1;
+        }
+        if (pageIndex + 4 > pageCount) {
+            int[] result = new int[9];
+            for (int i=0; i<9; i++) {
+                result[i] = pageCount - 8 + i;
+            }
+            return result;
+        }
+        int[] result = new int[9];
+        for (int i=0; i<9; i++) {
+            result[i] = pageIndex - 4 + i;
+        }
+        return result;
     }
 
     @Override

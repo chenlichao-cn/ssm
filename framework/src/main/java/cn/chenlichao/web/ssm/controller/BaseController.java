@@ -15,12 +15,16 @@
  */
 package cn.chenlichao.web.ssm.controller;
 
+import cn.chenlichao.web.ssm.utils.LinkedReadOnceQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.Queue;
+import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * Controller基类
@@ -39,7 +43,7 @@ public abstract class BaseController {
     /** 错误消息键 */
     public static final String ERROR_MESSAGE_KEY = "SSM.ACTION.ERROR";
 
-    protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private ThreadLocal<HttpServletRequest> localRequest = new ThreadLocal<>();
 
@@ -49,6 +53,11 @@ public abstract class BaseController {
     public void populateAttributes(HttpServletRequest request, HttpServletResponse response) {
         localRequest.set(request);
         localResponse.set(response);
+
+        HttpSession session = request.getSession();
+        session.setAttribute(SUCCESS_MESSAGE_KEY, new LinkedReadOnceQueue<>());
+        session.setAttribute(WARNING_MESSAGE_KEY, new LinkedReadOnceQueue<>());
+        session.setAttribute(ERROR_MESSAGE_KEY, new LinkedReadOnceQueue<>());
     }
 
     /**
@@ -78,7 +87,27 @@ public abstract class BaseController {
         addActionMessage(ERROR_MESSAGE_KEY, message);
     }
 
+    @SuppressWarnings("unchecked")
     private void addActionMessage(String key, String message) {
-        localRequest.get().setAttribute(key, message);
+        Queue<String> queue = (Queue<String>)localRequest.get().getSession().getAttribute(key);
+        queue.add(message);
+    }
+
+    /**
+     * 获取当前请求
+     *
+     * @return 当前请求
+     */
+    protected HttpServletRequest getRequest() {
+        return localRequest.get();
+    }
+
+    /**
+     * 获取当前请求的响应
+     *
+     * @return 当前请求的响应
+     */
+    protected HttpServletResponse getResponse() {
+        return localResponse.get();
     }
 }
