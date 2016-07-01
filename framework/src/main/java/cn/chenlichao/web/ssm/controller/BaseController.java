@@ -22,9 +22,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.Queue;
-import java.util.concurrent.LinkedTransferQueue;
+
 
 /**
  * Controller基类
@@ -37,11 +36,14 @@ import java.util.concurrent.LinkedTransferQueue;
 public abstract class BaseController {
 
     /** 成功消息键 */
-    public static final String SUCCESS_MESSAGE_KEY = "SSM.ACTION.SUCCESS";
+    public static final String SUCCESS_MESSAGE_KEY = "SSM.ACTION.MESSAGE.SUCCESS";
+    /** 提示消息键 */
+    public static final String INFO_MESSAGE_KEY = "SSM.ACTION.MESSAGE.INFO";
     /** 警告消息键 */
-    public static final String WARNING_MESSAGE_KEY = "SSM.ACTION.WARNING";
+    public static final String WARNING_MESSAGE_KEY = "SSM.ACTION.MESSAGE.WARNING";
     /** 错误消息键 */
-    public static final String ERROR_MESSAGE_KEY = "SSM.ACTION.ERROR";
+    public static final String ERROR_MESSAGE_KEY = "SSM.ACTION.MESSAGE.ERROR";
+
 
     protected Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -53,11 +55,6 @@ public abstract class BaseController {
     public void populateAttributes(HttpServletRequest request, HttpServletResponse response) {
         localRequest.set(request);
         localResponse.set(response);
-
-        HttpSession session = request.getSession();
-        session.setAttribute(SUCCESS_MESSAGE_KEY, new LinkedReadOnceQueue<>());
-        session.setAttribute(WARNING_MESSAGE_KEY, new LinkedReadOnceQueue<>());
-        session.setAttribute(ERROR_MESSAGE_KEY, new LinkedReadOnceQueue<>());
     }
 
     /**
@@ -67,6 +64,15 @@ public abstract class BaseController {
      */
     public void addActionSuccess(String message) {
         addActionMessage(SUCCESS_MESSAGE_KEY, message);
+    }
+
+    /**
+     * 添加全局提示信息
+     *
+     * @param message 信息内容
+     */
+    public void addActionInfo(String message) {
+        addActionMessage(INFO_MESSAGE_KEY, message);
     }
 
     /**
@@ -90,6 +96,10 @@ public abstract class BaseController {
     @SuppressWarnings("unchecked")
     private void addActionMessage(String key, String message) {
         Queue<String> queue = (Queue<String>)localRequest.get().getSession().getAttribute(key);
+        if (queue == null) {
+            queue = new LinkedReadOnceQueue<>();
+            localRequest.get().getSession().setAttribute(key, queue);
+        }
         queue.add(message);
     }
 

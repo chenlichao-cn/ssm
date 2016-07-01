@@ -86,7 +86,8 @@ public class PageResults<E> {
      * @return 总页数
      */
     public int getPageCount() {
-        return (totalCount + pageParams.getPageSize() - 1) / pageParams.getPageSize();
+        int pageCount = (totalCount + pageParams.getPageSize() - 1) / pageParams.getPageSize();
+        return pageCount == 0 ? 1 : pageCount;
     }
 
     /**
@@ -115,7 +116,7 @@ public class PageResults<E> {
     public int getStartIndex() {
         int pi = pageParams.getPageIndex();
         int ps = pageParams.getPageSize();
-        return (pi - 1) * ps + 1;
+        return results.size() == 0 ? 0 : (pi - 1) * ps + 1;
     }
 
     /**
@@ -124,7 +125,7 @@ public class PageResults<E> {
      * @return 当前页的结尾Index
      */
     public int getEndIndex() {
-        return getStartIndex() + results.size() - 1;
+        return results.size() == 0 ? 0 : getStartIndex() + results.size() - 1;
     }
 
 
