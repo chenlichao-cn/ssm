@@ -19,6 +19,7 @@ import cn.chenlichao.web.ssm.utils.LinkedReadOnceQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,10 +52,13 @@ public abstract class BaseController {
 
     private ThreadLocal<HttpServletResponse> localResponse = new ThreadLocal<>();
 
+    //private ThreadLocal<RedirectAttributes> localRedirectAttributes = new ThreadLocal<>();
+
     @ModelAttribute
     public void populateAttributes(HttpServletRequest request, HttpServletResponse response) {
         localRequest.set(request);
         localResponse.set(response);
+//        localRedirectAttributes.set(redirectAttributes);
     }
 
     /**
@@ -100,6 +104,9 @@ public abstract class BaseController {
             queue = new LinkedReadOnceQueue<>();
             localRequest.get().getSession().setAttribute(key, queue);
         }
+        if (message != null) {
+            message = message.replaceAll("\n","\\n");
+        }
         queue.add(message);
     }
 
@@ -120,4 +127,9 @@ public abstract class BaseController {
     protected HttpServletResponse getResponse() {
         return localResponse.get();
     }
+
+
+//    protected RedirectAttributes getRedirectAttributes() {
+//        return localRedirectAttributes.get();
+//    }
 }

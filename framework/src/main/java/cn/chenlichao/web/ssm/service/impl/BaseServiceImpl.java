@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.ClassArrayEditor;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -314,42 +315,41 @@ public abstract class BaseServiceImpl<E extends BaseEntity<PK>, PK extends Seria
 
         // 设置分页信息
         PageHelper.startPage(pageNum, pageSize);
-        List<E> results;
-        if (StringUtils.isEmpty(pageParams.getOrderBy())) {
-            E params = pageParams.getParamEntity();
-            results = params != null ? baseMapper.select(params) : baseMapper.selectAll();
-        } else {
-            if (entityClass == null) {
-                throw new DAOException("未能识别服务的实体类型, 不能进行分页查询");
-            }
-            E params = pageParams.getParamEntity();
-            Example example = new Example(entityClass);
-            // 处理查询条件
-            if (params != null) {
-                Example.Criteria criteria = example.createCriteria();
-                PropertyDescriptor[] propArray = BeanUtils.getPropertyDescriptors(entityClass);
-                for (PropertyDescriptor pd : propArray) {
-                    if (pd.getPropertyType().equals(Class.class)) {
-                        continue;
-                    }
-                    try {
-                        Object value = pd.getReadMethod().invoke(params);
-                        if (value != null) {
-                            criteria.andEqualTo(pd.getName(), value);
+
+        Example example = new Example(entityClass);
+        // 处理参数
+        E params = pageParams.getParamEntity();
+        if (params != null) {
+            Example.Criteria criteria = example.createCriteria();
+            PropertyDescriptor[] propArray = BeanUtils.getPropertyDescriptors(entityClass);
+            for (PropertyDescriptor pd : propArray) {
+                if (pd.getPropertyType().equals(Class.class)) {
+                    continue;
+                }
+                try {
+                    Object value = pd.getReadMethod().invoke(params);
+                    if (value != null) {
+                        if (pd.getPropertyType() == String.class) {
+                            String strValue = (String) value;
+                            if (strValue.startsWith("%") || strValue.endsWith("%")) {
+                                criteria.andLike(pd.getName(), strValue);
+                                continue;
+                            }
                         }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        LOGGER.error("构建分页查询example时出错: {}", e.getMessage(), e);
-                        throw new DAOException(e);
+                        criteria.andEqualTo(pd.getName(), value);
                     }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    LOGGER.error("构建分页查询example时出错: {}", e.getMessage(), e);
                 }
             }
-            // 处理排序
-            String orderBy = pageParams.getOrderBy();
-            if (StringUtils.hasText(orderBy)) {
-                processOrder(example, orderBy, pageParams.isAsc());
-            }
-            results = baseMapper.selectByExample(example);
         }
+        // 处理排序
+        String orderBy = pageParams.getOrderBy();
+        if (StringUtils.hasText(orderBy)) {
+            processOrder(example, orderBy, pageParams.isAsc());
+        }
+        List<E> results = baseMapper.selectByExample(example);
+
         // 返回空结果集
         if (results == null || !(results instanceof Page)) {
             return new PageResults<>(0, new ArrayList<E>(0), pageParams);

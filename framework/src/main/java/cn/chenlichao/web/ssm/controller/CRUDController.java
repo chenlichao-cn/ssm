@@ -235,7 +235,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
         String viewUrl = request.getContextPath() + "/"
                 + viewName.substring(0, viewName.lastIndexOf("/") + 1)
                 + Action.VIEW.getName();
-        return "redirect:" + viewUrl + "?id=" + id;
+        return "redirect:view.do?id=" + id;
     }
 
     @RequestMapping("/update.do")
@@ -268,7 +268,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
         String viewUrl = request.getContextPath() + "/"
                 + viewName.substring(0, viewName.lastIndexOf("/") + 1)
                 + Action.VIEW.getName();
-        return "redirect:" + viewUrl + "?id=" + id;
+        return "redirect:view.do?id=" + id;
     }
 
     @RequestMapping("/delete.do")
@@ -292,7 +292,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
         String viewUrl = request.getContextPath() + "/"
                 + viewName.substring(0, viewName.lastIndexOf("/") + 1)
                 + Action.LIST.getName();
-        return "redirect:" + viewUrl;
+        return "redirect:" + Action.LIST.getName() + ".do";
     }
 
     @SuppressWarnings("unchecked")
@@ -351,7 +351,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
         }
     }
 
-    private void populateParams(E entity, String prefix, HttpServletRequest request) {
+    protected void populateParams(E entity, String prefix, HttpServletRequest request) {
         Assert.notNull(prefix, "前缀不能为空");
 
         BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(entity);
