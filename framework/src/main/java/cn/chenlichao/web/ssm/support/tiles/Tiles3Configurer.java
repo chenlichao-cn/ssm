@@ -285,7 +285,9 @@ public class Tiles3Configurer implements ServletContextAware, InitializingBean, 
         private Definition buildDefinition(String name, Locale customizationKey) {
             LOGGER.info("构建Definition [{}] ... ", name);
             String webPath = servletContext.getRealPath("/WEB-INF");
-            webPath = webPath.substring(0, webPath.lastIndexOf("/"));
+            if(webPath.endsWith(File.separator)) {
+                webPath = webPath.substring(0, webPath.length() - 1);
+            }
             String viewPage = webPath + pagePrefix + name + ".jsp";
             if (!(new File(viewPage).exists())) {
                 LOGGER.warn("找不到Definition对应的文件 [{}] 不存在!!!", viewPage);
