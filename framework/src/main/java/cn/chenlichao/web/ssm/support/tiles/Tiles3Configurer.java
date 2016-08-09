@@ -284,7 +284,7 @@ public class Tiles3Configurer implements ServletContextAware, InitializingBean, 
 
         private Definition buildDefinition(String name, Locale customizationKey) {
             LOGGER.info("构建Definition [{}] ... ", name);
-            String webPath = servletContext.getRealPath("/WEB-INF");
+            String webPath = servletContext.getRealPath("/");
             if(webPath.endsWith(File.separator)) {
                 webPath = webPath.substring(0, webPath.length() - 1);
             }
