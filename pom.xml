@@ -6,7 +6,7 @@
 
     <groupId>cn.chenlichao.web.ssm</groupId>
     <artifactId>ssm-parent</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9.0-beta1</version>
     <modules>
         <module>framework</module>
         <module>generator</module>
@@ -40,10 +40,6 @@
     </scm>
 
     <properties>
-
-        <javadoc.skip>true</javadoc.skip>
-        <gpg.skip>true</gpg.skip>
-
         <sourceTarget>1.7</sourceTarget>
 
         <spring.framework.version>4.3.0.RELEASE</spring.framework.version>
@@ -146,14 +142,13 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <show>public</show>
+                                    <serialwarn>true</serialwarn>
+                                    <failOnError>false</failOnError>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <show>public</show>
-                            <charset>UTF-8</charset>
-                            <encoding>UTF-8</encoding>
-                            <docencoding>UTF-8</docencoding>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -169,6 +164,17 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!--<plugin>-->
+                        <!--<groupId>org.sonatype.plugins</groupId>-->
+                        <!--<artifactId>nexus-staging-maven-plugin</artifactId>-->
+                        <!--<version>1.6.7</version>-->
+                        <!--<extensions>true</extensions>-->
+                        <!--<configuration>-->
+                            <!--<serverId>ossrh</serverId>-->
+                            <!--<nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
+                            <!--<autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+                        <!--</configuration>-->
+                    <!--</plugin>-->
                 </plugins>
             </build>
         </profile>

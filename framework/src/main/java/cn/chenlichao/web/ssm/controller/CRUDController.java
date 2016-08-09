@@ -25,6 +25,8 @@ import java.text.ParseException;
 import java.util.Date;
 
 /**
+ * 单表增删改查基础Controller
+ *
  * <br>author: 陈立朝
  * <br>date: 16/6/15 下午4:33
  * <br>version: V1.0.0
@@ -69,6 +71,12 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
         LOGGER.debug("Entity Class: {}, PK class: {}", entityClass.getSimpleName(), pkClass.getSimpleName());
     }
 
+    /**
+     * 处理方法调用前的准备工作
+     *
+     * @param request HTTP请求
+     * @return 数据对象
+     */
     @ModelAttribute
     public final WrapModel<E> prepareAction(HttpServletRequest request) {
         //解析路径
@@ -96,6 +104,11 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
 
     /**
      * 响应列表请求
+     *
+     * @param request HTTP请求对象
+     * @param model 数据对象
+     *
+     * @return view name
      */
     @RequestMapping("/list.do")
     public String list(HttpServletRequest request, @ModelAttribute WrapModel<E> model) throws Exception {
@@ -136,6 +149,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
      * 处理请求前的预处理
      *
      * @param action 请求类型
+     * @param model 数据对象
      */
     protected void beforeAction(Action action, WrapModel<E> model) {
         //override as need
@@ -145,6 +159,7 @@ public abstract class CRUDController<E extends BaseEntity<PK>, PK extends Serial
      * 处理请求后的再加工
      *
      * @param action 请求类型
+     * @param model 数据对象
      */
     protected void postAction(Action action, WrapModel<E> model) {
         //override as need

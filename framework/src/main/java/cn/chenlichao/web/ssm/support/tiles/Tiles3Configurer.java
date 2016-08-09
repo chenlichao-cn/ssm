@@ -67,15 +67,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>一个常用的tiles definition配置示例: </p>
  *
  * <pre class="code">
- * &lt;bean id="tilesConfigurer" class="cn.chenlichao.web.Tiles3Configurer">
- *     &lt;property name="definitions">
- *         &lt;list>
- *             &lt;value>/WEB-INF/defs/templates.xml&lt;/value>
- *             &lt;value>/WEB-INF/defs/templates_en_US.xml&lt;/value>
- *         &lt;/list>
- *     &lt;/property>
- *     &lt;property name="pagePrefix" value="/WEB-INF/jsp/" />
- * &lt;/bean>
+ * <bean id="tilesConfigurer" class="cn.chenlichao.web.Tiles3Configurer">
+ *     <property name="definitions">
+ *         <list>
+ *             <value>/WEB-INF/defs/templates.xml&lt;/value>
+ *             <value>/WEB-INF/defs/templates_en_US.xml&lt;/value>
+ *         </list>
+ *     </property>
+ *     <property name="pagePrefix" value="/WEB-INF/jsp/" />
+ * </bean>
  * </pre>
  *
  * <p>definitions属性的值, 就是tiles definition配置文件, 如果不指定definitions属性, 默认加载{@code "/WEB-INF/tiles.xml"}</p>
