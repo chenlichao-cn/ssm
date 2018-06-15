@@ -19,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OrderBy;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -29,7 +30,7 @@ import java.lang.reflect.Method;
  * <br>date: 16/5/9 下午3:28
  * <br>version: V1.0.0
  */
-public class LongEntity implements BaseEntity<Long> {
+public class LongEntity implements BaseEntity<Long>, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
